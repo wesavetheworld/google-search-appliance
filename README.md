@@ -137,6 +137,26 @@ These are passed directly to the search appliance - see Google's [Request Format
  * `ie` - defaults to `UTF-8`
  * `oe` - defaults to `UTF-8`
 
+## Results
+
+Search results are retrieved using the `search` method, which prepares the URL for the query to be sent to the search appliance, including the query text, results per page and any paging variables. The results are retrieved using [cURL](http://php.net/manual/en/book.curl.php) as an XML file, which is then processed to return results in the following format:
+
+```php
+Array (
+	"number",      // total number of search results
+	"start",       // the starting number of the result set
+	"end",         // the ending number of the result set
+	"hasprevious", // whether there are any previous results in this set
+	"hasnext",     // whether there are any further results in this set
+	"docs"
+	Array(
+		"no",      // The number (rank) of this result
+		"title",   // the title of the result
+		"url",     // the url for this result
+		"summary"  // the summary text for this result
+	)
+)
+```
 ## Using output filters
 
 The example above uses two different output filters for search results content. Any number of filters can be applied to any of the fields which are used in the results list (`url`, `title` and `summary`). Filters are applied in the order in which they are added, and need to be callable functions or methods of objects or classes - [see the PHP manual for examples of callable functions and their syntax](http://php.net/manual/en/language.types.callable.php). There are also output filters for the search form (`form`) and paging navigation (`nav`).
