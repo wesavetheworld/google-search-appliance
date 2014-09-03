@@ -24,9 +24,12 @@ if ( ! class_exists('google_search_appliance')) :
 
 		/* appliance name */
 		private $appliance_name;
+
+		/* output filters */
+		public $filters;
 		
 		/* constructor */
-		private function __construct( $appliance_options = array(), $search_options = array() )
+		public function __construct( $appliance_options = array(), $search_options = array() )
 		{
 			$this->set_appliance_options( $appliance_options );
 			$this->set_search_options( $search_options );
@@ -37,10 +40,12 @@ if ( ! class_exists('google_search_appliance')) :
 		{
 			$defaults = $this->get_default_appliance_options();
 			foreach ( $defaults as $key => $val ) {
+				$option_value = ( isset( $options[$key] ) ) ? $options[$key]: $val;
 				if ( method_exists( $this, 'set_' . $key ) ) {
-					$this->set_$key();
+					$methodname = 'set_' . $key;
+					$this->$methodname( $option_value );
 				} else {
-					$this->appliance_options[$key] = ( isset( $options[$key] ) ) ? $options[$key]: $val;
+					$this->appliance_options[$key] = $option_value;
 				}
 			}
 		}
@@ -54,7 +59,7 @@ if ( ! class_exists('google_search_appliance')) :
 				'search_url'     => '',
 				'query_var'      => 's',
 				'proxy'          => '',
-				'paging_var'     => 'paged'
+				'paging_var'     => 'paged',
 				'per_page'       => 10
 			);
 		}
@@ -64,7 +69,7 @@ if ( ! class_exists('google_search_appliance')) :
 		{
 			/* set appliance URL if valid */
 			if ( $this->is_valid_url( $url ) ) {
-				$this->appliance_options['appliance_url'] = $url;
+				$this->appliance_options['appliance_url'] = trim( $url, ' ?' );
 			}
 		}
 
@@ -82,7 +87,7 @@ if ( ! class_exists('google_search_appliance')) :
 			if ( $this->is_valid_url( $url ) ) {
 				$this->appliance_options['search_url'] = $url;
 			} else {
-				$this->appliance_options['search_url'] = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+				$this->appliance_options['search_url'] = "http://$_SERVER[HTTP_HOST]$_SERVER[SCRIPT_NAME]";
 			}
 		}
 
@@ -121,7 +126,7 @@ if ( ! class_exists('google_search_appliance')) :
 		}
 
 		/* gets XML from google appliance */
-		private static function getXML($url)
+		private function get_XML($url)
 		{
 			$out = "";
 			$ch = curl_init( $url );
@@ -139,14 +144,14 @@ if ( ! class_exists('google_search_appliance')) :
 		}
 
 		/* parses XML from google appliance */
-		private static function parseXML($xml)
+		private function parse_XML($xml)
 		{
 			$xmlObj = new SimpleXMLElement($xml);
 			return $xmlObj;
 		}
 
 		/* search interface */
-		public static function search()
+		public function search()
 		{
 			$terms = $this->get_search_query();
 			if ( ! empty( $this->appliance_options['appliance_name'] ) && ! empty( $this->appliance_options['appliance_url'] ) && ! empty( $terms ) ) {
@@ -163,14 +168,14 @@ if ( ! class_exists('google_search_appliance')) :
 					}
 				}
 				$search_url = $this->appliance_options['appliance_url'] . "?site=" . $this->appliance_options['appliance_name'] . "&q=" . urlencode($terms) . "&start=" . $start . "&num=" . $this->appliance_options['per_page'] . $options_str;
-				$xml = $this->parseXML( $this->getXML( $search_url ) );
-				$results = $this->getResults( $xml );
+				$xml = $this->parse_XML( $this->get_XML( $search_url ) );
+				$results = $this->get_results( $xml );
 				return $results;
 			}
 		}
 
 		/* gets the results and formats in a results array */
-		private function getResults($xml)
+		private function get_results($xml)
 		{
 			$results = array(
 				"number" => (integer) $xml->RES->M,
@@ -184,20 +189,38 @@ if ( ! class_exists('google_search_appliance')) :
 				$results["docs"] = array();
 				foreach ($xml->RES->R as $result) {
 					$results["docs"][] = array(
-						"no" => (integer) $result->attributes()->N,
-						"title" => $this->clean_content($result->T),
-						"url" => (string) $result->U,
-						"summary" => $this->clean_content($result->S)
+						"no" => $this->filter_text( $result->attributes()->N, 'no' ),
+						"title" => $this->filter_text( $result->T, 'title' ),
+						"url" => $this->filter_text( $result->U, 'url' ),
+						"summary" => $this->filter_text( $result->S, 'summary' )
 					);
 				}
 			}
 			return $results;
 		}
 
-		/* replaces <br>, <b> and <i> tags in output */
-		private static function clean_content($txt)
+		/* gets the title for a result after filtering */
+		private function filter_text( $text, $field )
 		{
-			return preg_replace(array("/b>/", "/i>/", "/<br ?\/?>/"), array("strong>", "em>", " "), $txt);
+			if ( isset( $this->filters[$field] ) ) {
+				foreach ($this->filters[$field] as $func ) {
+					if ( is_callable( $func ) ) {
+						$text = call_user_func( $func, $text, $field );
+					}
+				}
+			}
+			return $text;
+		}
+
+		/* adds output filters for content */
+		public function add_filter( $context, $func )
+		{
+			if ( is_callable( $func ) ) {
+				if ( ! isset( $this->filters[$context] ) ) {
+					$this->filters[$context] = array();
+				}
+				$this->filters[$context][] = $func;
+			}
 		}
 
 		/* gets a search form */
@@ -207,11 +230,11 @@ if ( ! class_exists('google_search_appliance')) :
 	        $form .= '<label class="screen-reader-text">Search for:</label>';
 	        $form .= sprintf('<input type="text" value="%s" name="%s" class="searchinput" />', $this->get_search_query(), $this->appliance_options['query_var'] );
 	        $form .= '<input type="submit" class="searchsubmit" value="Go" /></form>';
-	        return $form;
+	        return $this->filter_text( $form, 'form' );
 	    }
 
 		/* gets results paging navigation */
-		public static function get_paging_navigation( $results )
+		public function get_paging_navigation( $results )
 		{
 			$out = "";
 			if ($results["number"] > $this->appliance_options['per_page']) {
@@ -219,21 +242,22 @@ if ( ! class_exists('google_search_appliance')) :
 				$currentpage = ceil($results["start"] / $this->appliance_options['per_page']);
 				$base_url = $this->appliance_options['search_url'] . '?' . $this->appliance_options['query_var'] . '=' . urlencode( $results["query"] ) . '&' . $this->appliance_options['paging_var'] . '=';
 				if ($results["hasprevious"]) {
-					$out .= sprintf( '<li class="nav-previous"><a href="%s/%s/%s/page/%d" class="next-prev prev">&larr; Previous page</a></li>', $base_url, ($currentpage - 1) );
+					$out .= sprintf( '<li class="nav-previous"><a href="%s%d" class="next-prev prev">&larr; Previous page</a></li>', $base_url, ($currentpage - 1) );
 				}
 				if ($results["hasnext"]) {
-					$out .= sprintf( '<li class="nav-next"><a href="%s/%s/%s/page/%d" class="next-prev next">Next page &rarr;</a></li>', $base_url(), ($currentpage + 1) );
+					$out .= sprintf( '<li class="nav-next"><a href="%s%d" class="next-prev next">Next page &rarr;</a></li>', $base_url, ($currentpage + 1) );
 				}
 				$out .= '</ul></nav>';
 			}
-			return $out;
+			return $this->filter_text( $out, 'nav' );
 		}
 
 		/* gets the query for the search */
-		private function get_search_query()
+		public function get_search_query()
 		{
 			return isset( $_REQUEST[$this->appliance_options['query_var']] ) ? trim( $_REQUEST[$this->appliance_options['query_var']] ) : '';
 		}
+
 
 	} /* end of class definition */
 
