@@ -161,19 +161,19 @@ Array (
 
 <dl>
 <dt>search</dt>
-<dd>Can accept a single parameter (containing search terms). If the parameter is omitted, the query is deduced from the request by examining the `$_REQUEST` global and looking for the query there. The default query variable is `s`, but this can be changed using the `query_var` setting in `$appliance_options`.</dd>
+<dd>Can accept a single parameter (containing search terms). If the parameter is omitted, the query is deduced from the request by examining the <code>$_REQUEST</code> global and looking for the query there. The default query variable is <code>s</code>, but this can be changed using the <code>query_var</code> setting in <code>$appliance_options</code>.</dd>
 <dt>set_appliance_options</dt>
 <dd>Sets the options for the appliance/search forms/results. Accepts an array as its parameter containing the members listed above.</dd>
 <dt>set_search_options</dt>
 <dd>Sets the options for the apliance search. Accepts an array as its parameter containing the members listed above.</dd>
 <dt>set_appliance_url</dt>
-<dd>Sets the URL for the search appliance - can also be set using an array variable passed to `set_appliance_options`.</dd>
+<dd>Sets the URL for the search appliance - can also be set using an array variable passed to <code>set_appliance_options</code>.</dd>
 <dt>set_appliance_name</dt>
-<dd>Sets the name of the collection in the search appliance - can also be set using an array variable passed to `set_appliance_options`.</dd>
+<dd>Sets the name of the collection in the search appliance - can also be set using an array variable passed to <code>set_appliance_options</code>.</dd>
 <dt>set_search_url</dt>
-<dd>Sets the URL for the search page (defaults to current URL) - can also be set using an array variable passed to `set_appliance_options`. The search URL is used in the search form and to generate links in the page navigation.</dd>
+<dd>Sets the URL for the search page (defaults to current URL) - can also be set using an array variable passed to <code>set_appliance_options</code>. The search URL is used in the search form and to generate links in the page navigation.</dd>
 <dt>add_filter</dt>
-<dd>Adds an output filter to change the text returned from methods which generate HTML. Accepts two arguments, the first is the name of the text which will be filtered (one of `no`, `title`, `url`, `summary`, `form`, `nav`), the second is the name of a function/callback which is used to filter the output. The [callback function](http://php.net/manual/en/language.types.callable.php) is passed two arguments, the first is the text which will be filtered by the function, and the second is the name of the text which is being filtered. The callback function is expected to return a string.</dd>
+<dd>Adds an output filter to change the text returned from methods which generate HTML. Accepts two arguments, the first is the name of the text which will be filtered (one of <code>no</code>, <code>title</code>, <code>url</code>, <code>summary</code>, <code>form</code>, <code>nav</code>), the second is the name of a function/callback which is used to filter the output. The [callback function](http://php.net/manual/en/language.types.callable.php) is passed two arguments, the first is the text which will be filtered by the function, and the second is the name of the text which is being filtered. The callback function is expected to return a string.</dd>
 <dt>get_search_form</dt>
 <dd>Returns the HTML of a simple search form</dd>
 <dt>get_paging_navigation</dt>
