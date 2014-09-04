@@ -1,12 +1,11 @@
 <?php
 /**
  * Google search appliance class
- *
  * @author Peter Edwards <p.l.edwards@leeds.ac.uk>
  * @version 0.0.1
  */
 
-if ( ! class_exists('google_search_appliance')) :
+if ( ! class_exists('google_search_appliance') ) :
 
 	/**
 	 * class to provide search services for sites using a google search appliance.
@@ -151,9 +150,11 @@ if ( ! class_exists('google_search_appliance')) :
 		}
 
 		/* search interface */
-		public function search()
+		public function search($terms = '')
 		{
-			$terms = $this->get_search_query();
+			if ( empty( $terms ) ) {
+				$terms = $this->get_search_query();
+			}
 			if ( ! empty( $this->appliance_options['appliance_name'] ) && ! empty( $this->appliance_options['appliance_url'] ) && ! empty( $terms ) ) {
 				/* set paging */
 				$start = 0;
