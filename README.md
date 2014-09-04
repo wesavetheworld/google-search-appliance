@@ -157,6 +157,29 @@ Array (
 	)
 )
 ```
+## Public methods
+
+<dl>
+<dt>search</dt>
+<dd>Can accept a single parameter (containing search terms). If the parameter is omitted, the query is deduced from the request by examining the `$_REQUEST` global and looking for the query there. The default query variable is `s`, but this can be changed using the `query_var` setting in `$appliance_options`.</dd>
+<dt>set_appliance_options</dt>
+<dd>Sets the options for the appliance/search forms/results. Accepts an array as its parameter containing the members listed above.</dd>
+<dt>set_search_options</dt>
+<dd>Sets the options for the apliance search. Accepts an array as its parameter containing the members listed above.</dd>
+<dt>set_appliance_url</dt>
+<dd>Sets the URL for the search appliance - can also be set using an array variable passed to `set_appliance_options`.</dd>
+<dt>set_appliance_name</dt>
+<dd>Sets the name of the collection in the search appliance - can also be set using an array variable passed to `set_appliance_options`.</dd>
+<dt>set_search_url</dt>
+<dd>Sets the URL for the search page (defaults to current URL) - can also be set using an array variable passed to `set_appliance_options`. The search URL is used in the search form and to generate links in the page navigation.</dd>
+<dt>add_filter</dt>
+<dd>Adds an output filter to change the text returned from methods which generate HTML. Accepts two arguments, the first is the name of the text which will be filtered (one of `no`, `title`, `url`, `summary`, `form`, `nav`), the second is the name of a function/callback which is used to filter the output. The [callback function](http://php.net/manual/en/language.types.callable.php) is passed two arguments, the first is the text which will be filtered by the function, and the second is the name of the text which is being filtered. The callback function is expected to return a string.</dd>
+<dt>get_search_form</dt>
+<dd>Returns the HTML of a simple search form</dd>
+<dt>get_paging_navigation</dt>
+<dd>Returns the HTML to use as navigation for the search results (next and Previous pages, where applicable).</dd>
+</dl>
+
 ## Using output filters
 
 The example above uses two different output filters for search results content. Any number of filters can be applied to any of the fields which are used in the results list (`url`, `title` and `summary`). Filters are applied in the order in which they are added, and need to be callable functions or methods of objects or classes - [see the PHP manual for examples of callable functions and their syntax](http://php.net/manual/en/language.types.callable.php). There are also output filters for the search form (`form`) and paging navigation (`nav`).
