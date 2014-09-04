@@ -55,11 +55,11 @@ if ( ! class_exists('google_search_appliance') ) :
 			return array(
 				'appliance_url'  => '',
 				'appliance_name' => '',
-				'search_url'     => '',
-				'query_var'      => 's',
-				'proxy'          => '',
-				'paging_var'     => 'paged',
-				'per_page'       => 10
+				'search_url'	 => '',
+				'query_var'	  => 's',
+				'proxy'		  => '',
+				'paging_var'	 => 'paged',
+				'per_page'	   => 10
 			);
 		}
 
@@ -116,11 +116,11 @@ if ( ! class_exists('google_search_appliance') ) :
 		private function get_default_search_options()
 		{
 			return array(
-				'sort'          => 'date:D:L:d1',
-				'output'        => 'xml_no_dtd',
-				'filter'        => '1',
-				'ie'            => 'UTF-8',
-				'oe'            => 'UTF-8'
+				'sort'		  => 'date:D:L:d1',
+				'output'		=> 'xml_no_dtd',
+				'filter'		=> '1',
+				'ie'			=> 'UTF-8',
+				'oe'			=> 'UTF-8'
 			);
 		}
 
@@ -226,13 +226,13 @@ if ( ! class_exists('google_search_appliance') ) :
 
 		/* gets a search form */
 		public function get_search_form()
-	    {
-	        $form = sprintf('<form role="search" method="get" action="%s">', $this->appliance_options['search_url']);
-	        $form .= '<label class="screen-reader-text">Search for:</label>';
-	        $form .= sprintf('<input type="text" value="%s" name="%s" class="searchinput" />', $this->get_search_query(), $this->appliance_options['query_var'] );
-	        $form .= '<input type="submit" class="searchsubmit" value="Go" /></form>';
-	        return $this->filter_text( $form, 'form' );
-	    }
+		{
+			$form = sprintf('<form role="search" method="get" action="%s">', $this->appliance_options['search_url']);
+			$form .= '<label class="screen-reader-text">Search for:</label>';
+			$form .= sprintf('<input type="text" value="%s" name="%s" class="searchinput" />', $this->get_search_query(), $this->appliance_options['query_var'] );
+			$form .= '<input type="submit" class="searchsubmit" value="Go" /></form>';
+			return $this->filter_text( $form, 'form' );
+		}
 
 		/* gets results paging navigation */
 		public function get_paging_navigation( $results )
